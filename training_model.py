@@ -6,6 +6,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from model import get_model
 from helpers import get_word_ids, get_sequences_and_labels, create_folder
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from constants import *
 
 def plot_confusion_matrix(cm, classes, model_num):
@@ -20,9 +21,7 @@ def plot_confusion_matrix(cm, classes, model_num):
     fmt = 'd'
     thresh = cm.max() / 2.
     for i, j in np.ndindex(cm.shape):
-        plt.text(j, i, format(cm[i, j], fmt),
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
+        plt.text(j, i, format(cm[i, j], fmt),horizontalalignment="center",color="white" if cm[i, j] > thresh else "black")
     
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
@@ -59,18 +58,18 @@ def plot_metrics(metrics, model_nums):
     plt.savefig(os.path.join(GRAPHIC_PATH, "performance_metrics.png"))
     plt.show()
 
-def training_model_with_plots(model_path, model_num:int, epochs=50):
+def training_model_with_plots(model_path, model_num:int, epochs=100):
     word_ids = get_word_ids(KEYPOINTS_PATH)
     sequences, labels = get_sequences_and_labels(word_ids, model_num)
     sequences = pad_sequences(sequences, maxlen=int(model_num), padding='pre', truncating='post', dtype='float32')
 
     X = np.array(sequences)
     y = to_categorical(labels).astype(int)
-
     model = get_model(int(model_num), len(word_ids))
-    history = model.fit(X, y, epochs=epochs, validation_split=0.2)
-    model.summary()
-    model.save(model_path)
+    # Configura callbacks para estabilizar el entrenamiento
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=3, min_lr=0.0001)
+    history = model.fit(X, y, epochs=epochs, validation_split=0.2, verbose=1, callbacks=[reduce_lr])
+    #Probar validacion crossover
     
     # Plotting loss and accuracy
     plt.figure(figsize=(12, 4))
@@ -131,6 +130,8 @@ def training_model_with_plots(model_path, model_num:int, epochs=50):
     plt.savefig(os.path.join(GRAPHIC_PATH, f"roc_curve_{model_num}.png"))
     plt.show()
 
+    model.summary()
+    model.save(model_path)
     return accuracy, precision, recall, f1
 
 if __name__ == "__main__":

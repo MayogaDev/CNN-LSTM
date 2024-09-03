@@ -36,12 +36,12 @@ def evaluate_model(src=None, threshold=0.6):
                 elif count_frame <= 12:
                     print("carga modelo 12")
                     kp_sequence = pad_secuences(kp_sequence, 12)
-                    model = models[1]
+                    model = models[0]
              
                 else:
                     print("carga modelo 18")
                     kp_sequence = pad_secuences(kp_sequence, 18)
-                    model = models[2]
+                    model = models[0]
                 
                 res = model.predict(np.expand_dims(kp_sequence, axis=0))[0]
                 

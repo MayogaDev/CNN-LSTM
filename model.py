@@ -5,9 +5,12 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import CategoricalCrossentropy
+from keras.models import Sequential
+from keras.layers import LSTM, Dense, Dropout, LeakyReLU
+from keras.regularizers import l2
 from constants import LENGTH_KEYPOINTS
 
-def get_model(max_length_frames, output_length):
+"""def get_model(max_length_frames, output_length):
     # Definir la entrada del modelo
     inputs = Input(shape=(max_length_frames, LENGTH_KEYPOINTS), name="input_layer")
     
@@ -93,4 +96,48 @@ def get_model(max_length_frames, output_length):
                   loss=loss_function, 
                   metrics=['accuracy'])
     
+    return model"""
+
+def get_model(max_length_frames, output_length: int):
+    model = Sequential()
+    model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(max_length_frames, LENGTH_KEYPOINTS), kernel_regularizer=l2(0.001)))
+    model.add(Dropout(0.3))
+    model.add(LSTM(128, return_sequences=False, activation='relu', kernel_regularizer=l2(0.001)))
+    model.add(Dropout(0.3))
+    model.add(Dense(32, activation='relu', kernel_regularizer=l2(0.001)))
+    #model.add(Dropout(0.3))
+    model.add(Dense(64, activation='relu', kernel_regularizer=l2(0.001)))
+    model.add(Dense(output_length, activation='softmax'))
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
+"""def get_model(max_length_frames, output_length: int):
+    model = Sequential()
+    
+    # Primera capa LSTM
+    model.add(LSTM(64, return_sequences=True, input_shape=(max_length_frames, LENGTH_KEYPOINTS),kernel_regularizer=l2(0.001)))
+    model.add(LeakyReLU(alpha=0.1))  # Sustitución de ReLU por LeakyReLU
+    model.add(Dropout(0.3))
+    
+    # Segunda capa LSTM
+    model.add(LSTM(128, return_sequences=False, kernel_regularizer=l2(0.001)))
+    model.add(LeakyReLU(alpha=0.1))
+    model.add(Dropout(0.3))
+    
+    # Capa densa
+    model.add(Dense(64, kernel_regularizer=l2(0.001)))
+    model.add(LeakyReLU(alpha=0.1))
+    model.add(Dropout(0.3))
+    
+    # Capa densa
+    model.add(Dense(32, kernel_regularizer=l2(0.001)))
+    model.add(LeakyReLU(alpha=0.1))
+    model.add(Dropout(0.3))
+    
+    # Salida
+    model.add(Dense(output_length, activation='softmax'))
+    
+    # Compilación del modelo
+    optimizer = Adam(learning_rate=0.001)
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    return model"""
