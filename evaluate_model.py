@@ -7,7 +7,7 @@ from helpers import *
 from constants import *
 from text_to_speech import text_to_speech
 
-
+    
 def evaluate_model(src=None, threshold=0.6):
     count_frame = 0
     kp_sequence, sentence = [], []

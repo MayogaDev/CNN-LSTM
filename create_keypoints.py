@@ -39,10 +39,10 @@ if __name__ == "__main__":
     create_folder(KEYPOINTS_PATH)
     
     # GENERAR TODAS LAS PALABRAS
-    word_ids = [word for word in os.listdir(os.path.join(ROOT_PATH, FRAME_ACTIONS_PATH))]
+    # word_ids = [word for word in os.listdir(os.path.join(ROOT_PATH, FRAME_ACTIONS_PATH))]
     
     # GENERAR PARA UNA PALABRA O CONJUNTO
-    # word_ids = ["buenas tardes"]
+    word_ids = ["cancelar"]
     
     for word_id in word_ids:
         hdf_path = os.path.join(KEYPOINTS_PATH, f"{word_id}.h5")

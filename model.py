@@ -1,6 +1,6 @@
 # model.py
 import tensorflow as tf
-from tensorflow.keras.layers import LSTM, Dense, Input
+from tensorflow.keras.layers import LSTM, Dense, Input, Dropout, BatchNormalization, Bidirectional
 from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.optimizers import Adam
@@ -97,7 +97,7 @@ from constants import LENGTH_KEYPOINTS
                   metrics=['accuracy'])
     
     return model"""
-
+"""
 def get_model(max_length_frames, output_length: int):
     model = Sequential()
     model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(max_length_frames, LENGTH_KEYPOINTS), kernel_regularizer=l2(0.001)))
@@ -110,34 +110,41 @@ def get_model(max_length_frames, output_length: int):
     model.add(Dense(output_length, activation='softmax'))
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
-"""def get_model(max_length_frames, output_length: int):
+"""
+def get_model(max_length_frames, output_length: int):
     model = Sequential()
-    
-    # Primera capa LSTM
-    model.add(LSTM(64, return_sequences=True, input_shape=(max_length_frames, LENGTH_KEYPOINTS),kernel_regularizer=l2(0.001)))
-    model.add(LeakyReLU(alpha=0.1))  # Sustitución de ReLU por LeakyReLU
-    model.add(Dropout(0.3))
-    
+
+    # Primera capa LSTM bidireccional
+    # Bidirectional LSTM para capturar patrones temporales en ambas direcciones de la secuencia
+    model.add(Bidirectional(LSTM(128, return_sequences=True, activation='tanh', 
+                                 input_shape=(max_length_frames, LENGTH_KEYPOINTS), 
+                                 kernel_regularizer=l2(0.001))))
+    model.add(BatchNormalization())  # Normalización por lotes para estabilizar y acelerar el entrenamiento
+    model.add(Dropout(0.3))  # Dropout para reducir el sobreajuste al apagar aleatoriamente neuronas
+
     # Segunda capa LSTM
-    model.add(LSTM(128, return_sequences=False, kernel_regularizer=l2(0.001)))
-    model.add(LeakyReLU(alpha=0.1))
-    model.add(Dropout(0.3))
+    # LSTM para extraer características temporales más complejas
+    model.add(LSTM(128, return_sequences=False, activation='tanh', kernel_regularizer=l2(0.001)))
+    model.add(BatchNormalization())  # Normalización para estabilizar el entrenamiento
+    model.add(Dropout(0.3))  # Dropout para evitar el sobreajuste
+
+    # Capa densa con 128 neuronas
+    # Capa completamente conectada para aprender combinaciones de las características extraídas
+    model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.001)))
+    model.add(BatchNormalization())  # Normalización para mejorar la estabilidad del modelo
+    model.add(Dropout(0.3))  # Dropout para mejorar la generalización
+
+    # Capa densa con 64 neuronas
+    # Capa completamente conectada adicional para reducir dimensionalidad antes de la salida
+    model.add(Dense(64, activation='relu', kernel_regularizer=l2(0.001)))
     
-    # Capa densa
-    model.add(Dense(64, kernel_regularizer=l2(0.001)))
-    model.add(LeakyReLU(alpha=0.1))
-    model.add(Dropout(0.3))
-    
-    # Capa densa
-    model.add(Dense(32, kernel_regularizer=l2(0.001)))
-    model.add(LeakyReLU(alpha=0.1))
-    model.add(Dropout(0.3))
-    
-    # Salida
+    # Capa de salida con softmax para clasificación
+    # Capa de salida con 'softmax' para generar probabilidades sobre las clases posibles
     model.add(Dense(output_length, activation='softmax'))
-    
-    # Compilación del modelo
+
+    # Optimizador Adam con tasa de aprendizaje ajustada
+    # Adam es un optimizador eficiente para este tipo de modelos secuenciales
     optimizer = Adam(learning_rate=0.001)
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-    
-    return model"""
+
+    return model
