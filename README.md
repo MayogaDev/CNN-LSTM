@@ -87,6 +87,7 @@ The primary goal of this project is to:
 
 ### **3. Performance Metrics**  
 - Graphs depicting **ROC curves, confusion matrices**, and accuracy over time to demonstrate the model's effectiveness.
+
 ![Curva ROC](https://github.com/user-attachments/assets/a2b06887-a8e2-4cf6-937c-5f1a935d03b5)
 ![Matriz de Confusion](https://github.com/user-attachments/assets/54725c73-94ec-430c-91a1-db359f638348)
 ![Especificidad](https://github.com/user-attachments/assets/47e2bcbf-d973-4820-890c-007bb7443621)
