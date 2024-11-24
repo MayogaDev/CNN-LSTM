@@ -103,7 +103,6 @@ The primary goal of this project is to:
 - **[Jharold Mayorga Villena](https://github.com/MayogaDev)**  
 - **[Andrea Lopez Condori](https://github.com/andrealopezco20)**  
 - **[Javier Quispe Rojas](https://github.com/XawiiQR)**  
-- **[Jenny Huanca Anquise](https://github.com/JennyHa-Unsa)**  
 
 ---
 
